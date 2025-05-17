@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>GeoBible Map</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.29/"></script>
+    <style>
+      html, body, #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+    <script>
+      require(["esri/views/MapView", "esri/WebMap", "esri/Graphic"], (MapView, WebMap, Graphic) => {
+        const map = new WebMap({ portalItem: { id: "c49805ecd6c94ba59172e1fb4637d2e6" } });
+        const view = new MapView({
+          container: "viewDiv",
+          map: map,
+          center: [35.2, 31.7],
+          zoom: 7
+        });
+
+        const locationData = {
+          "Matthew 2": { lat: 31.7054, lon: 35.2024 },
+          "Matthew 3": { lat: 31.9984, lon: 35.5281 },
+          "Matthew 4": { lat: 31.5556, lon: 35.3997 },
+          "Matthew 5": { lat: 32.8800, lon: 35.5550 },
+          "Matthew 8": { lat: 32.8804, lon: 35.5733 },
+          "Matthew 14": { lat: 32.8333, lon: 35.5833 },
+          "Matthew 15": { lat: 33.2700, lon: 35.2000 },
+          "Matthew 16": { lat: 33.2481, lon: 35.6939 },
+          "Matthew 17": { lat: 32.6908, lon: 35.3903 },
+          "Matthew 21": { lat: 31.7683, lon: 35.2137 },
+          "Matthew 26": { lat: 31.7784, lon: 35.2401 },
+          "Matthew 27": { lat: 31.7781, lon: 35.2296 },
+          "Matthew 28": { lat: 31.7834, lon: 35.2341 }
+        };
+
+        window.addEventListener("message", (event) => {
+          if (event.data?.type === "passage") {
+            const coords = locationData[event.data.value];
+            if (coords) {
+              view.goTo({
+                center: [coords.lon, coords.lat],
+                zoom: 12
+              });
+            }
+          }
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div id="viewDiv"></div>
+  </body>
+</html>
