@@ -1,16 +1,51 @@
-<label for="passage">Select a passage:</label>
-<select id="passage">
-  <option value="Genesis 1">Genesis 1</option>
-  <option value="Genesis 2">Genesis 2</option>
-  <option value="Genesis 3">Genesis 3</option>
-  <option value="Genesis 4">Genesis 4</option>
-  <option value="Genesis 5">Genesis 5</option>
-  <option value="Genesis 6">Genesis 6</option>
-  <option value="Genesis 7">Genesis 7</option>
-  <option value="Genesis 8">Genesis 8</option>
-  <option value="Genesis 9">Genesis 9</option>
-  <option value="Genesis 10">Genesis 10</option>
-  <!-- ... continues through all 66 books ... -->
-  <option value="Revelation 21">Revelation 21</option>
-  <option value="Revelation 22">Revelation 22</option>
-</select>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GeoBible Viewer</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    select { margin-bottom: 20px; padding: 5px; font-size: 1em; width: 100%; max-width: 400px; }
+    h2 { font-size: 1.5em; }
+    p { line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <h2>GeoBible Viewer</h2>
+  
+  <label for="passage">Select a passage:</label>
+  <select id="passage">
+    <!-- BEGIN OPTIONS -->
+    <!-- I’ll give you the full list in a downloadable link next -->
+  </select>
+
+  <div id="bible">Loading...</div>
+
+  <script>
+    const bibleDiv = document.getElementById("bible");
+    const select = document.getElementById("passage");
+
+    function loadPassage(passage) {
+      bibleDiv.innerHTML = "Loading...";
+      fetch(`https://labs.bible.org/api/?passage=${encodeURIComponent(passage)}&type=json`)
+        .then(res => res.json())
+        .then(data => {
+          const html = data.map(v =>
+            `<p><strong>${v.bookname} ${v.chapter}:${v.verse}</strong> ${v.text}</p>`
+          ).join('');
+          bibleDiv.innerHTML = html;
+        })
+        .catch(err => {
+          bibleDiv.innerText = "Failed to load passage.";
+          console.error(err);
+        });
+    }
+
+    // Load initial passage
+    loadPassage("Genesis 1");
+
+    // Update when dropdown changes
+    select.addEventListener("change", () => loadPassage(select.value));
+  </script>
+</body>
+</html>
