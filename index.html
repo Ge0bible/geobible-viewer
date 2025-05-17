@@ -20,33 +20,6 @@
 
   <div id="bible">Loading...</div>
 
-  <script>
-    const bibleDiv = document.getElementById("bible");
-    const select = document.getElementById("passage");
-
-    function loadPassage(passage) {
-      bibleDiv.innerHTML = "Loading...";
-      fetch(`https://labs.bible.org/api/?passage=${encodeURIComponent(passage)}&type=json`)
-        .then(res => res.json())
-        .then(data => {
-          const html = data.map(v =>
-            `<p><strong>${v.bookname} ${v.chapter}:${v.verse}</strong> ${v.text}</p>`
-          ).join('');
-          bibleDiv.innerHTML = html;
-        })
-        .catch(err => {
-          bibleDiv.innerText = "Failed to load passage.";
-          console.error(err);
-        });
-    }
-
-    // Load initial passage
-    loadPassage(select.value);
-
-    // Update when dropdown changes
-    select.addEventListener("change", () => loadPassage(select.value));
-    // Send the selected passage to the parent (iframe host)
-window.parent.postMessage({ type: "passage", value: select.value }, "*");
  <script>
   const bibleDiv = document.getElementById("bible");
   const select = document.getElementById("passage");
@@ -70,7 +43,7 @@ window.parent.postMessage({ type: "passage", value: select.value }, "*");
   // Load the first passage
   loadPassage(select.value);
 
-  // ✅ Correct: Send message when the dropdown changes
+  // Send passage to parent and update on dropdown change
   select.addEventListener("change", () => {
     loadPassage(select.value);
     window.parent.postMessage({ type: "passage", value: select.value }, "*");
