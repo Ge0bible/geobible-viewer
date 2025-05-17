@@ -1,31 +1,55 @@
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>GeoBible Viewer</title>
-    <style>
-      body { font-family: sans-serif; margin: 20px; }
-      h2 { font-size: 1.5em; }
-      p { line-height: 1.6; }
-    </style>
-  </head>
-  <body>
-    <h2>Genesis 12</h2>
-    <div id="bible">Loading...</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GeoBible Viewer</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    select { margin-bottom: 20px; padding: 5px; font-size: 1em; }
+    h2 { font-size: 1.5em; }
+    p { line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <h2>GeoBible Viewer</h2>
+  
+  <label for="passage">Select a passage:</label>
+  <select id="passage">
+    <option value="Genesis 12">Genesis 12</option>
+    <option value="Genesis 1">Genesis 1</option>
+    <option value="Exodus 3">Exodus 3</option>
+    <option value="Psalm 23">Psalm 23</option>
+    <option value="John 1">John 1</option>
+    <option value="Matthew 5">Matthew 5</option>
+  </select>
 
-    <script>
-      fetch("https://labs.bible.org/api/?passage=Genesis+12&type=json")
-        .then(response => response.json())
+  <div id="bible">Loading...</div>
+
+  <script>
+    const bibleDiv = document.getElementById("bible");
+    const select = document.getElementById("passage");
+
+    function loadPassage(passage) {
+      bibleDiv.innerHTML = "Loading...";
+      fetch(`https://labs.bible.org/api/?passage=${encodeURIComponent(passage)}&type=json`)
+        .then(res => res.json())
         .then(data => {
           const html = data.map(v =>
             `<p><strong>${v.bookname} ${v.chapter}:${v.verse}</strong> ${v.text}</p>`
           ).join('');
-          document.getElementById("bible").innerHTML = html;
+          bibleDiv.innerHTML = html;
         })
         .catch(err => {
-          document.getElementById("bible").innerText = "Failed to load passage.";
+          bibleDiv.innerText = "Failed to load passage.";
           console.error(err);
         });
-    </script>
-  </body>
-  </html>
+    }
+
+    // Load initial passage
+    loadPassage(select.value);
+
+    // Update when dropdown changes
+    select.addEventListener("change", () => loadPassage(select.value));
+  </script>
+</body>
+</html>
