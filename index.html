@@ -45,6 +45,8 @@
 
     // Update when dropdown changes
     select.addEventListener("change", () => loadPassage(select.value));
+    // Send the selected passage to the parent (iframe host)
+window.parent.postMessage({ type: "passage", value: select.value }, "*");
   </script>
 </body>
 </html>
