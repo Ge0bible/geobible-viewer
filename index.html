@@ -1,0 +1,31 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>GeoBible Viewer</title>
+    <style>
+      body { font-family: sans-serif; margin: 20px; }
+      h2 { font-size: 1.5em; }
+      p { line-height: 1.6; }
+    </style>
+  </head>
+  <body>
+    <h2>Genesis 12</h2>
+    <div id="bible">Loading...</div>
+
+    <script>
+      fetch("https://labs.bible.org/api/?passage=Genesis+12&type=json")
+        .then(response => response.json())
+        .then(data => {
+          const html = data.map(v =>
+            `<p><strong>${v.bookname} ${v.chapter}:${v.verse}</strong> ${v.text}</p>`
+          ).join('');
+          document.getElementById("bible").innerHTML = html;
+        })
+        .catch(err => {
+          document.getElementById("bible").innerText = "Failed to load passage.";
+          console.error(err);
+        });
+    </script>
+  </body>
+  </html>
