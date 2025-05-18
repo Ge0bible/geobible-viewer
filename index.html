@@ -15,12 +15,6 @@
       font-weight: bold;
       margin-right: 3px;
     }
-    button.loc-button {
-      font-size: 0.8em;
-      margin-left: 5px;
-      padding: 1px 6px;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
@@ -38,21 +32,26 @@
   <div id="bible">Loading...</div>
 
   <script>
-    const oldTestament = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther", "Job", "Psalms", "Proverbs", "Ecclesiastes", "Song of Solomon", "Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"];
+    const oldTestament = [
+      "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth",
+      "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah",
+      "Esther", "Job", "Psalms", "Proverbs", "Ecclesiastes", "Song of Solomon", "Isaiah", "Jeremiah",
+      "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah",
+      "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"
+    ];
 
-    const newTestament = ["Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Revelation"];
+    const newTestament = [
+      "Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1 Corinthians", "2 Corinthians",
+      "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians",
+      "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter",
+      "1 John", "2 John", "3 John", "Jude", "Revelation"
+    ];
 
-    const geoLocations = {
-      "Matthew 2:1": { name: "Bethlehem", lat: 31.7054, lon: 35.2024 },
-      "Matthew 3:1": { name: "Judean Wilderness", lat: 31.7500, lon: 35.2500 },
-      "Matthew 4:13": { name: "Capernaum", lat: 32.8869, lon: 35.5723 },
-      "Matthew 4:18": { name: "Sea of Galilee", lat: 32.833, lon: 35.588 },
-      "Matthew 5:1": { name: "Mount of Beatitudes", lat: 32.8803, lon: 35.5559 },
-      "Matthew 8:28": { name: "Gadara", lat: 32.6716, lon: 35.6621 },
-      "Matthew 16:13": { name: "Caesarea Philippi", lat: 33.2451, lon: 35.6939 },
-      "Matthew 20:29": { name: "Jericho", lat: 31.8667, lon: 35.4500 },
-      "Matthew 21:1": { name: "Mount of Olives", lat: 31.7784, lon: 35.2436 },
-      "Matthew 27:33": { name: "Golgotha", lat: 31.7784, lon: 35.2296 }
+    const locationData = {
+      "Matthew 2": { name: "Bethlehem", lat: 31.7054, lon: 35.2024 },
+      "Matthew 3": { name: "Jordan River", lat: 31.835, lon: 35.528 },
+      "Matthew 4": { name: "Capernaum", lat: 32.884, lon: 35.573 },
+      "Matthew 5": { name: "Sea of Galilee", lat: 32.833, lon: 35.588 }
     };
 
     const testamentSelect = document.getElementById("testament");
@@ -71,6 +70,18 @@
       });
     }
 
+    function sendMapLocation(passage) {
+      const location = locationData[passage];
+      if (location) {
+        window.parent.postMessage({
+          type: "location",
+          name: location.name,
+          lat: location.lat,
+          lon: location.lon
+        }, "*");
+      }
+    }
+
     function loadPassage(passage) {
       bibleDiv.innerHTML = "Loading...";
       fetch(`https://labs.bible.org/api/?passage=${encodeURIComponent(passage)}&type=json`)
@@ -85,24 +96,18 @@
           const chapter = data[0].chapter;
 
           let html = `<h3>${book} ${chapter}</h3><p>`;
-          html += data.map(v => {
-            const ref = `${v.bookname} ${v.chapter}:${v.verse}`;
-            const loc = geoLocations[ref];
-            const button = loc ? `<button class='loc-button' onclick="focusMap(${loc.lat}, ${loc.lon})">${loc.name}</button>` : "";
-            return `<sup>${v.verse}</sup> ${v.text.trim()} ${button}`;
-          }).join(' ');
+          html += data.map(v => `<sup>${v.verse}</sup> ${v.text.trim()}`).join(' ');
           html += `</p>`;
 
           bibleDiv.innerHTML = html;
+
+          // Send map coordinates if applicable
+          sendMapLocation(passage);
         })
         .catch(err => {
           bibleDiv.innerText = "Failed to load passage.";
           console.error(err);
         });
-    }
-
-    function focusMap(lat, lon) {
-      window.parent.postMessage({ type: "map-center", lat, lon }, "*");
     }
 
     // Initial setup
