@@ -62,10 +62,23 @@
       fetch(`https://labs.bible.org/api/?passage=${encodeURIComponent(passage)}&type=json`)
         .then(res => res.json())
         .then(data => {
-          const html = data.map(v =>
-            `<p><strong>${v.bookname} ${v.chapter}:${v.verse}</strong> ${v.text}</p>`
-          ).join('');
-          bibleDiv.innerHTML = html;
+  if (data.length === 0) {
+    bibleDiv.innerHTML = "No text found.";
+    return;
+  }
+
+  const book = data[0].bookname;
+  const chapter = data[0].chapter;
+
+  let html = `<h3>${book} ${chapter}</h3><p>`;
+  html += data.map(v =>
+    `<sup>${v.verse}</sup> ${v.text.trim()}`
+  ).join(' ');
+  html += `</p>`;
+
+  bibleDiv.innerHTML = html;
+})
+
         })
         .catch(err => {
           bibleDiv.innerText = "Failed to load passage.";
